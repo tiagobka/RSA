@@ -6,8 +6,24 @@ class RSA:
     def __init__(self):
         pass
         #this is a constructor
-    def generatePrimeNumber (self):
-        pass
+
+    def is_prime(self, num):
+        if num == 1:
+            return False
+        if num > 1:
+            for i in range (2,num):
+                if (num%i) == 0:
+                    print(num,"is not a prime number")
+                    break
+        else:
+            print(num,"is a prime number")
+
+    def generatePrimeNumber (self,size):
+        while True:
+            num = random.randrange(2**(size-1), 2**(size))
+            if self.is_prime(num):
+                return num;
+
 
     def RSA_Algorithm(self):
         pass
@@ -36,13 +52,7 @@ class RSA:
                         v = (v ** 2) % num
             return True
 
-    def is_prime(num):
-        if num > 1:
-            for i in range (2,num):
-                if (num%i) == 0:
-                    print(num,"is not a prime number")
-                    break
-        else:
-            print(num,"is a prime number")
+
+
 c = RSA()
 c.printTest()
