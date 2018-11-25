@@ -128,6 +128,16 @@ class RSA:
         ret = pow(cripted,self.privateKey,self.n)
         return ret
 
+    def createPublicKeyFile(self):
+        pass
+        #todo create a file containing the public key e and product of prime numbers n
+
+    def createPrivateKeyFile(self):
+        pass
+        #todo create a file containing the public key d and product of prime numbers n
+
+    #todo create more functions that encrypt and decrypt strings, files, images if possible
+
 def main():
     c = RSA()
     print(c.keyP)
