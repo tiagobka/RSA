@@ -1,13 +1,11 @@
 import random
 class RSA:
     def __init__(self):
-        self.keyP = self.generateLargePrime()
-        self.keyQ = self.generateLargePrime()
-        self.RSA_Algorithm()
-
-        #this is a constructor
-
-    lowPrimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101,
+        self.P = 0
+        self.Q = 0
+        self.z = 0
+        self.n = 0
+        self.lowPrimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101,
                  103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199,
                  211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317,
                  331, 337, 347, 349, 353, 359, 367, 373, 379, 383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443,
@@ -24,6 +22,9 @@ class RSA:
                  1723, 1733, 1741, 1747, 1753, 1759, 1777, 1783, 1787, 1789, 1801, 1811, 1823, 1831, 1847, 1861, 1867,
                  1871, 1873, 1877, 1879, 1889, 1901, 1907, 1913, 1931, 1933, 1949, 1951, 1973, 1979, 1987, 1993, 1997,
                  1999]
+
+
+
     def is_prime(self, num):
         if num == 1:
             return False
@@ -54,15 +55,8 @@ class RSA:
 
 
     def RSA_Algorithm(self, keySize=1024):
-        self.n = self.keyP * self.keyQ
-        self.z = (self.keyP-1)*(self.keyQ-1)
-        while True:
-            self.publicKey = random.randrange(2 ** (keySize - 1), 2 ** (keySize))
-            if self.gcd(self.publicKey, (self.keyP - 1) * (self.keyQ - 1)) == 1:
-                break
-        self.privateKey = self.findModInverse(self.publicKey, (self.keyP - 1) * (self.keyQ - 1))
-
-
+        self.n = self.P * self.Q
+        self.z = (self.P-1)*(self.Q-1)
 
     def gcd(self, a, b):
         while a != 0:
@@ -124,32 +118,68 @@ class RSA:
         ret = pow(msg,self.publicKey,self.n)
         return ret
 
-    def dencrypt(self, cripted:int):
+    def decrypt(self, cripted:int):
         ret = pow(cripted,self.privateKey,self.n)
         return ret
 
-    def createPublicKeyFile(self):
-        pass
-        #todo create a file containing the public key e and product of prime numbers n
+    def createPublicKeyFile(self, fileName:str = "./keys/publicKeyFile.txt", keySize:int = 1024):
+        while True:
+            self.publicKey = random.randrange(2 ** (keySize - 1), 2 ** (keySize))
+            if self.gcd(self.publicKey, (self.P - 1) * (self.Q - 1)) == 1:
+                break
+        file = open(fileName, "w")
+        file.write(str(self.publicKey))
+        file.write(":")
+        file.write(str(self.n))
+        file.close()
 
-    def createPrivateKeyFile(self):
-        pass
-        #todo create a file containing the public key d and product of prime numbers n
 
-    #todo create more functions that encrypt and decrypt strings, files, images if possible
+    def createPrivateKeyFile(self, fileName:str = "./keys/privateKeyFile.txt"):
+        self.privateKey = self.findModInverse(self.publicKey, (self.P - 1) * (self.Q - 1))
+        file = open(fileName, "w")
+        file.write(str(self.privateKey))
+        file.write(":")
+        file.write(str(self.n))
+        file.close()
+    def getPrivateKeyFromFile(self, fileName:str = "./keys/privateKeyFile.txt"):
+        file = open(fileName, "r")
+        line = file.readline()
+        file.close()
+        try:
+            field= line.split(":")
+            self.privateKey = int(field[0])
+            self.n = int(field[1])
+        except():
+            print ("Invalid private key file")
+
+    def getPublicKeyFromFile(self, fileName:str = "./keys/publicKeyFile.txt"):
+        file = open(fileName, "r")
+        line = file.readline()
+        file.close()
+        try:
+            field= line.split(":")
+            self.publicKey = int(field[0])
+            self.n = int(field[1])
+        except():
+            print ("Invalid public key file")
 
 def main():
+
     c = RSA()
-    print(c.keyP)
-    print(c.keyQ)
-    file = open("keyFile.txt", "w")
-    file.write(str(c.keyP) + "\n")
-    file.write(str(c.keyQ))
+    c.getPublicKeyFromFile()
+    c.getPrivateKeyFromFile()
 
-    cript = c.encrypt(123)
-    print (cript)
-    regular = c.dencrypt(cript)
-    print(regular)
+    crypt = c.encrypt(1122334455667788990)
+    print ("encypted message", crypt)
 
+    print("decrypted message", c.decrypt(crypt))
+
+    #c.createPublicKeyFile()
+    #c.createPrivateKeyFile()
+
+    #cript = c.encrypt(123)
+    #print (cript)
+    #regular = c.decrypt(cript)
+    #print(regular)
 
 main()
