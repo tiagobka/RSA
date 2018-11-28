@@ -1,10 +1,11 @@
 import random
 class RSA:
-    def __init__(self):
+    def __init__(self, keySize:int = 1024):
         self.P = 0
         self.Q = 0
         self.z = 0
         self.n = 0
+        self.keySize = keySize
         self.lowPrimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101,
                  103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199,
                  211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283, 293, 307, 311, 313, 317,
@@ -47,16 +48,25 @@ class RSA:
             return True
             #print(num,"is a prime number")
 
-    def generatePrimeNumber (self,size):
-        while True:
-            num = random.randrange(2**(size-1), 2**(size))
-            if self.is_prime(num):
-                return num
+    #def generatePrimeNumber (self):
+    #    while True:
+    #        num = random.randrange(2**(self.keySize-1), 2**(self.keySize))
+    #        if self.is_prime(num):
+    #            return num
 
 
-    def RSA_Algorithm(self, keySize=1024):
+    def RSA_Algorithm(self):
+        self.setPPrime() #gets a prime number P with lenght of keySize
+        self.setQPrime() #gets a prime number Q with lenght of keySize
         self.n = self.P * self.Q
         self.z = (self.P-1)*(self.Q-1)
+
+        while True:
+            self.publicKey = random.randrange(2 ** (self.keySize - 1), 2 ** (self.keySize))
+            if self.gcd(self.publicKey, self.z) == 1:
+                break
+
+        self.privateKey = self.findModInverse(self.publicKey, self.z)
 
     def gcd(self, a, b):
         while a != 0:
@@ -108,9 +118,9 @@ class RSA:
             return True # it is likely a prime
 
 
-    def generateLargePrime(self, keysize = 1024):
+    def generateLargePrime(self):
         while True:
-            num = random.randrange(2**(keysize-1), 2**(keysize))
+            num = random.randrange(2**(self.keySize-1), 2**(self.keySize))
             if self.is_prime(num):
                 return num
 
@@ -122,20 +132,13 @@ class RSA:
         ret = pow(cripted,self.privateKey,self.n)
         return ret
 
-    def createPublicKeyFile(self, fileName:str = "./keys/publicKeyFile.txt", keySize:int = 1024):
-        while True:
-            self.publicKey = random.randrange(2 ** (keySize - 1), 2 ** (keySize))
-            if self.gcd(self.publicKey, (self.P - 1) * (self.Q - 1)) == 1:
-                break
+    def createPublicKeyFile(self, fileName:str = "./keys/publicKeyFile.txt"):
         file = open(fileName, "w")
         file.write(str(self.publicKey))
         file.write(":")
         file.write(str(self.n))
         file.close()
-
-
     def createPrivateKeyFile(self, fileName:str = "./keys/privateKeyFile.txt"):
-        self.privateKey = self.findModInverse(self.publicKey, (self.P - 1) * (self.Q - 1))
         file = open(fileName, "w")
         file.write(str(self.privateKey))
         file.write(":")
@@ -151,7 +154,6 @@ class RSA:
             self.n = int(field[1])
         except():
             print ("Invalid private key file")
-
     def getPublicKeyFromFile(self, fileName:str = "./keys/publicKeyFile.txt"):
         file = open(fileName, "r")
         line = file.readline()
@@ -163,15 +165,23 @@ class RSA:
         except():
             print ("Invalid public key file")
 
+    def setPPrime(self):
+        self.P = self.generateLargePrime()
+
+    def setQPrime(self):
+        self.Q = self.generateLargePrime()
+
+    def setKeySize(self, keySize:int):
+        self.keySize = keySize
+
 def main():
 
     c = RSA()
-    c.getPublicKeyFromFile()
-    c.getPrivateKeyFromFile()
+
+    c.RSA_Algorithm()
 
     crypt = c.encrypt(1122334455667788990)
     print ("encypted message", crypt)
-
     print("decrypted message", c.decrypt(crypt))
 
     #c.createPublicKeyFile()
