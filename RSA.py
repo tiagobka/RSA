@@ -124,12 +124,28 @@ class RSA:
             if self.is_prime(num):
                 return num
 
-    def encrypt(self, msg:int):
+    def encryptInt(self, msg:int):
         ret = pow(msg,self.publicKey,self.n)
         return ret
 
-    def decrypt(self, cripted:int):
-        ret = pow(cripted,self.privateKey,self.n)
+    def encryptText(self, msg:str):
+        out = str(hex(ord(msg[0])))[2:]
+        for c in msg[1:]:
+            out = str(out) + str(hex(ord(c)))[2:]
+        hexa = int(out, 16)
+
+        ret = pow(hexa,self.publicKey,self.n)
+        return ret
+
+    def decryptInt(self, crypted:int):
+        ret = pow(crypted,self.privateKey,self.n)
+        return ret
+    def decryptText(self, crypted:int):
+        crypt = pow(crypted, self.privateKey, self.n)
+        crypt = str(hex(crypt))[2:]
+        ret = ""
+        for i in range(0,len(crypt),2):
+            ret += chr(int(crypt[i:i+2],16))
         return ret
 
     def createPublicKeyFile(self, fileName:str = "./keys/publicKeyFile.txt"):
@@ -174,15 +190,16 @@ class RSA:
     def setKeySize(self, keySize:int):
         self.keySize = keySize
 
-def main():
+#def main():
 
-    c = RSA()
+#    c = RSA()
 
-    c.RSA_Algorithm()
+#    c.RSA_Algorithm()
 
-    crypt = c.encrypt(1122334455667788990)
-    print ("encypted message", crypt)
-    print("decrypted message", c.decrypt(crypt))
+#    crypt = c.encryptText("Hello")
+#    print("decrypted message", c.decryptText(crypt))
+#    print ("encypted message", crypt)
+#    print("decrypted message", c.decrypt(crypt))
 
     #c.createPublicKeyFile()
     #c.createPrivateKeyFile()
@@ -192,4 +209,4 @@ def main():
     #regular = c.decrypt(cript)
     #print(regular)
 
-main()
+#main()
