@@ -1,6 +1,11 @@
 from tkinter import *
 from tkinter import filedialog
 from RSA import RSA
+from sys import getsizeof
+
+from datetime import datetime
+import matplotlib.pyplot as plt
+
 
 class RSAInterface:
     def __init__(self, keySize:int = 1024):
@@ -15,7 +20,6 @@ class RSAInterface:
         #Instantiate RSA class, Key will be 1024 by default
         self.rsa = RSA(self.keySize)
         self.option = IntVar(0)
-        #self.generateKeys()
 
     def setKeySize (self,keySize:int):
         self.keySize = keySize
@@ -24,11 +28,16 @@ class RSAInterface:
     def generateKeys(self):
         try:
             x = int(self.mainWindow.grid_slaves(0, 2)[0].get())
+            self.setKeySize(x)
+            #
             #if (self.msg3.winfo_ismapped()):
              #   self.msg3.grid_forget()
 
-            if 2 < x < 2048:
+            if 2 <= x <= 2048:
+
+
                 self.rsa.RSA_Algorithm()  # creates private and public keys
+
                 self.msg3['text'] = "Keys were created successfully!"
                 self.msg3['foreground'] = "green"
                 self.msg3.grid(row=0, column=4)
@@ -109,6 +118,7 @@ class RSAInterface:
             if (self.msg3.winfo_ismapped()):
                 self.msg3.grid_forget()
 
+
     def savePubKeyToFile(self):
         filename = filedialog.asksaveasfilename(title='Export public key',defaultextension = 'txt',initialdir = "./keys")
         if filename != "":
@@ -151,6 +161,7 @@ class RSAInterface:
                 if (self.msg1.winfo_ismapped()):
                     self.msg1.grid_forget()
                 value = self.rsa.decryptInt(crypto)
+
                 self.L.delete(1.0,END)
                 self.L.insert(END, value)
             except:
@@ -162,12 +173,12 @@ class RSAInterface:
                     self.msg2.grid_forget()
                 if (self.msg1.winfo_ismapped()):
                     self.msg1.grid_forget()
+
                 value = self.rsa.decryptText(crypto)
                 self.L.delete(1.0,END)
                 self.L.insert(END, value)
             except:
                 self.msg2.grid(row=10, column=4, sticky=W)
-
 
 
 GUI = RSAInterface()

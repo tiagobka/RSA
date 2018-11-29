@@ -30,7 +30,7 @@ class RSA:
         if num == 1:
             return False
         if num in self.lowPrimes:
-            print(num,"is a prime number")
+            return True
 
         if num > 2000:
             for prime in self.lowPrimes:
@@ -45,7 +45,7 @@ class RSA:
                 return False
             #return self.rabinMiller(num)
         else:
-            return True
+            return False
             #print(num,"is a prime number")
 
     #def generatePrimeNumber (self):
