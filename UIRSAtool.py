@@ -1,10 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
 from RSA import RSA
-from sys import getsizeof
-
-from datetime import datetime
-import matplotlib.pyplot as plt
 
 
 class RSAInterface:
