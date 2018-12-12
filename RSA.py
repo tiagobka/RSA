@@ -129,24 +129,112 @@ class RSA:
         return ret
 
     def encryptText(self, msg:str):
-        out = str(hex(ord(msg[0])))[2:]
-        for c in msg[1:]:
-            out = str(out) + str(hex(ord(c)))[2:]
-        hexa = int(out, 16)
+        # (keyLen/8*2)-1 is the max num of bytes that a key of length "keyLen" can successfully encrypt
+        # using built in pow function.
+        bufferSize = ((self.keySize//8)*2)-1 #e.g. a 1024 key can encrypt 255 bytes at a constant time.
 
-        ret = pow(hexa,self.publicKey,self.n)
+        ret = str()
+        while (len(msg)!=0):
+            if len(msg) > bufferSize:
+                buffer = msg[0:bufferSize]
+                msg = msg[bufferSize:]
+                separator = "a"
+            else:
+                buffer = msg
+                msg = ""
+                separator = ""
+
+            first_letter = buffer[0]
+            char = ord(first_letter)
+            hexad = hex(char)
+            out = str(hexad)[2:]
+            for c in buffer[1:]:
+                add = hex(ord(c))
+                addstr = str(add)[2:]
+                if len(addstr) ==1:
+                    addstr = "0" + addstr
+                out = str(out) + addstr
+            hexa = int(out, 16)
+
+            ret += str(pow(hexa,self.publicKey,self.n)) + separator
         return ret
 
-    def decryptInt(self, crypted:int):
+    def decryptInt(self, crypted):
         ret = pow(crypted,self.privateKey,self.n)
         return ret
-    def decryptText(self, crypted:int):
-        crypt = pow(crypted, self.privateKey, self.n)
-        crypt = str(hex(crypt))[2:]
-        ret = ""
-        for i in range(0,len(crypt),2):
-            ret += chr(int(crypt[i:i+2],16))
+
+    def decryptText(self, crypted:str):
+        ret = str()
+        while (len(crypted) != 0):
+            index = crypted.find("a")
+            if (index > 0):
+                buffer = int(crypted[0:index])
+                crypted = crypted[index+1:]
+            else:
+                buffer = int(crypted)
+                crypted = ""
+
+            crypt = pow(buffer, self.privateKey, self.n)
+            hexa = hex(crypt)
+            crypt = str(hexa)[2:]
+
+
+            for i in range(0,len(crypt),2):
+                num = int(crypt[i:i+2],16)
+                ret += chr(num)
         return ret
+
+    def encryptTextFile(self, inputFile:str, outputFile:str):
+        bufferSize = ((self.keySize // 8) * 2) - 1
+        file_object = open(inputFile,"r")
+        while True:
+            data = file_object.read(bufferSize)
+            if not data:
+                break
+
+            first_letter = data[0]
+            char = ord(first_letter)
+            hexad = hex(char)
+            out = str(hexad)[2:]
+            for c in data[1:]:
+                add = hex(ord(c))
+                addstr = str(add)[2:]
+                if len(addstr) ==1:
+                    addstr = "0" + addstr
+                out = str(out) + addstr
+            hexa = int(out, 16)
+
+            ret = str(pow(hexa, self.publicKey, self.n))
+            toFile = open(outputFile, "a")
+            toFile.write(ret)
+            toFile.write("\n")
+            toFile.close()
+
+        file_object.close()
+
+    def decryptTextFile(self, inputFile: str, outputFile: str):
+        file_object = open(inputFile, "r")
+        while True:
+
+            buffer = file_object.readline()
+            if not buffer:
+                break
+            ret = str()
+            crypt = pow(int(buffer), self.privateKey, self.n)
+            hexa = hex(crypt)
+            crypt = str(hexa)[2:]
+
+            for i in range(0, len(crypt), 2):
+                num = int(crypt[i:i + 2], 16)
+                ret += chr(num)
+            toFile = open(outputFile, "a")
+            toFile.write(ret)
+            #toFile.write("\n")
+            toFile.close()
+
+
+
+
 
     def createPublicKeyFile(self, fileName:str = "./keys/publicKeyFile.txt"):
         file = open(fileName, "w")
@@ -188,25 +276,6 @@ class RSA:
         self.Q = self.generateLargePrime()
 
     def setKeySize(self, keySize:int):
+        if keySize <8 or keySize > 2048:
+            raise Exception("RSA key length should be larger than 7 and smaller than 2049.")
         self.keySize = keySize
-
-#def main():
-
-#    c = RSA()
-
-#    c.RSA_Algorithm()
-
-#    crypt = c.encryptText("Hello")
-#    print("decrypted message", c.decryptText(crypt))
-#    print ("encypted message", crypt)
-#    print("decrypted message", c.decrypt(crypt))
-
-    #c.createPublicKeyFile()
-    #c.createPrivateKeyFile()
-
-    #cript = c.encrypt(123)
-    #print (cript)
-    #regular = c.decrypt(cript)
-    #print(regular)
-
-#main()

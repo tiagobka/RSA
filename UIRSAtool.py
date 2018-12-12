@@ -140,7 +140,8 @@ class RSAInterface:
                     self.msg1.grid_forget()
                 if (self.msg2.winfo_ismapped()):
                     self.msg2.grid_forget()
-                crypto = self.rsa.encryptText(self.L.get(1.0,END))
+                msg = self.L.get(1.0,END).rstrip()
+                crypto = self.rsa.encryptText(msg)
                 self.R.delete(1.0, END)
                 self.R.insert(END, crypto)
             except:
@@ -151,7 +152,7 @@ class RSAInterface:
     def decryptFunction(self):
         if self.option.get() == 0:
             try:
-                crypto = int(self.R.get(1.0,END))
+                crypto = int(self.R.get(1.0,END).rstrip())
                 if (self.msg2.winfo_ismapped()):
                     self.msg2.grid_forget()
                 if (self.msg1.winfo_ismapped()):
@@ -164,7 +165,8 @@ class RSAInterface:
                 self.msg2.grid(row=10, column=4, sticky=W)
         elif self.option.get() == 1:
             try:
-                crypto = int(self.R.get(1.0,END))
+                #crypto = int(self.R.get(1.0,END))
+                crypto = self.R.get(1.0,END).rstrip()
                 if (self.msg2.winfo_ismapped()):
                     self.msg2.grid_forget()
                 if (self.msg1.winfo_ismapped()):
